@@ -134,7 +134,7 @@ style: new Style({
     layers: [this.interactionLayer]
   });
 
-  addInteractions(source: VectorSource) {
+  addInteractions(source: any) {
     let draw: Draw;
     let select: Select = this.select;
     let translate: Translate = this.translate;

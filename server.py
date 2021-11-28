@@ -32,23 +32,18 @@ def get_boundaries():
     boundary_file = './boundaries.geojson'
     boundary = gpd.read_file(boundary_file)
     boundary = json.loads(boundary.to_json())
-            # create response
     response = make_response(boundary)
     response.headers['Access-Control-Allow-Origin'] = '*'            
 
     return response
 @app.route('/network', methods=['GET'])
 def serve_network():
-    # network_file = 'geojson/2019/divvy_2019-01-01.geojson'
-    # network = gpd.read_file(network_file)
-    # network = json.loads(network.to_json())
-    # network['features'] = network['features'][:int(100)]
-    #         # create response
-    # response = make_response(network)
-    # date = request.args.get('date')
-    # count = request.args.get('count')
-    date = '2021-01-01'
-    count=100
+    # Get query params from GET request
+    print(request.args)
+
+    date = request.args.get('date')
+    count = request.args.get('count')
+    
     print(date,count)
     if date is None:
         # Send error response if date is not provided
@@ -58,8 +53,7 @@ def serve_network():
             count = 10
         # Check if date is valid
         year = int(date[0:4])
-        #network_file = 'geojson/{}/divvy_{}.geojson'.format(year, date)
-        network_file = 'geojson/2019/divvy_2019-01-01.geojson'
+        network_file = 'geojson/{}/divvy_{}.geojson'.format(year, date)
         if os.path.exists(network_file):
             # read network_file and convert it to json
             network = gpd.read_file(network_file)

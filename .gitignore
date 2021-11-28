@@ -5,6 +5,7 @@
 /integration/bazel/bazel-*
 *.log
 node_modules
+package-lock.json
 
 # Include when developing application packages.
 pubspec.lock
@@ -24,6 +25,7 @@ modules/.settings
 modules/.vscode
 .vimrc
 .nvimrc
+.angular
 
 # Don't check in secret files
 *secret.js
@@ -65,7 +67,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+dist
 downloads/
 eggs/
 .eggs/
