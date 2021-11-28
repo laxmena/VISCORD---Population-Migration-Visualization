@@ -5,6 +5,8 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 from flask import Flask, send_from_directory, safe_join, request
 import json
+from datetime import datetime, timedelta
+
 app = Flask(__name__, static_folder=os.path.abspath('./geojson/'))
 divvy_station = None
 divvy_stations_gdf = None
@@ -29,7 +31,24 @@ def get_stations():
     
 @app.route('/boundaries', methods=['GET'])
 def get_boundaries():
-    boundary_file = './boundaries.geojson'
+    boundary_file = 'geojson/chicago-zip.geojson'
+    date = request.args.get('date')
+    # Get Week start date
+    try:
+        dt = datetime.strptime(date, '%Y-%m-%d')
+    except Exception as e:
+        print(e)
+        return make_response('Invalid date format', 400)
+    try:
+        week_start = dt - timedelta(days=dt.weekday()+1)
+        boundary_file = 'geojson/covid/{}.geojson'.format(week_start.strftime('%Y-%m-%d'))
+        # Check if file exists
+        if not os.path.exists(boundary_file):
+            boundary_file = 'geojson/chicago-zip.geojson'
+    except Exception as e:
+        print(e)
+        boundary_file = 'geojson/chicago-zip.geojson'        
+
     boundary = gpd.read_file(boundary_file)
     boundary = json.loads(boundary.to_json())
     response = make_response(boundary)
@@ -43,7 +62,7 @@ def serve_network():
 
     date = request.args.get('date')
     count = request.args.get('count')
-    
+
     print(date,count)
     if date is None:
         # Send error response if date is not provided
@@ -77,16 +96,15 @@ def serve_distribution():
     frames = divvy_stations_gdf[divvy_stations_gdf.within(polygon)]
     return frames.describe().to_json()
 
+def covid_data():
+    pass
+
 def load():
     global divvy_stations_gdf
     global divvy_station
-    # global chicago_boundaries_gdf
-    # global chicago_boundaries
 
     divvy_stations_gdf = gpd.read_file('./stations.geojson')
     divvy_station = divvy_stations_gdf.to_json()
-    # chicago_boundaries_gdf = gpd.read_file('./Boundaries.geojson')
-    # chicago_boundaries = chicago_boundaries_gdf.to_json()
 
 
 if __name__ == '__main__':
