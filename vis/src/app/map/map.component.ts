@@ -30,7 +30,7 @@ export class MapComponent implements AfterViewInit {
   private map: Map = new Map({});
   coordinates: any;
   mousePosition: number[] = [0, 0];
-  date = "2019-01-01";
+  date = "2020-08-01";
   count = 100;
   values: any = { 'Winter': 0, 'Summer': 0, 'Fall/Spring': 0 };
   @Output() onValues = new EventEmitter<string>();
@@ -41,11 +41,8 @@ export class MapComponent implements AfterViewInit {
   selectedFeatures: any;
   myStyle = new Style({
     image: new Circle({
-      radius: 4,
+      radius: 2,
       fill: new Fill({color: 'black'}),
-      // stroke: new Stroke({
-      //   color: [255,0,0], width: 2
-      // })
     })
   })
   // Create Chicago Map
@@ -193,20 +190,44 @@ export class MapComponent implements AfterViewInit {
       }),
       target: 'map'
     })
-
+    this.fillColors();
     // this.addInteractions(this.interactionSource)
   }
 
+  fillColors() {
+    this.boundaries.getSource().getFeatures().map(feature => {
+      // get properties
+      // check if property 'color' exists in feature
+      if (feature.get('color')) {
+        // get color
+          feature.setStyle(new Style({
+              fill: new Fill({
+                color: feature.getProperties().color
+              })
+          }))
+         }
+      });
+
+      this.streetNetwork.getSource().getFeatures().map(feature => {
+        // get properties
+        // check if property 'color' exists in feature
+        if (feature.get('color')) {
+          // get color
+            console.log(feature.getProperties().color)
+            feature.setStyle(new Style({
+                fill: new Fill({
+                  color: feature.getProperties().color
+                })
+            }))
+           }
+        });
+  }
   updateValues() {
     let date = this.date;
     let count = this.count;
-    console.log(date, count);
-    console.log("Update values");
     this.dataService.getNetwork(date, count)
       .subscribe(data => {
-        console.log(data);
         // Update network open layers vector soruce to data
-        console.log(this.streetNetwork.getSource());
         this.streetNetwork.getSource().clear();
         
         // Change features to features from data
@@ -216,13 +237,12 @@ export class MapComponent implements AfterViewInit {
         });
         this.streetNetwork.getSource().addFeatures(features);
         // this.onValues.emit(data);
+        this.fillColors();
       });
 
       this.dataService.getBoundaries(date)
       .subscribe(data => {
-        console.log(data);
         // Update getBoundaries open layers vector soruce to data
-        console.log(this.boundaries.getSource());
         this.boundaries.getSource().clear();
         
         // Change features to features from data
@@ -230,8 +250,9 @@ export class MapComponent implements AfterViewInit {
           dataProjection: 'EPSG:4326',
           featureProjection: 'EPSG:3857'
         });
-        
+
         this.boundaries.getSource().addFeatures(features);
+        this.fillColors();
       });
 
   }
