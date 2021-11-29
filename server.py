@@ -65,14 +65,13 @@ def serve_network():
     print(request.args)
 
     date = request.args.get('date')
-    count = request.args.get('count')
+    top = request.args.get('top')
 
-    print(date,count)
     if date is None:
         # Send error response if date is not provided
         response = make_response('Date is not provided', 400)
     else:
-        if count is None:
+        if top is None:
             count = 10
         # Check if date is valid
         year = int(date[0:4])
@@ -82,8 +81,16 @@ def serve_network():
             network = gpd.read_file(network_file)
             network = json.loads(network.to_json())
             # Filter only top n features from the network features
-            print(type(network))
-            network['features'] = network['features'][:int(count)]
+            network['features'] = network['features'][:int(top)]
+            mincount = request.args.get('mincount')
+            if mincount is None:
+                mincount = 0
+            netfeat = []
+            for i in range(len(network['features'])):
+                commutecount = int(network['features'][i]['properties']['count'])
+                if(commutecount >= int(mincount)):
+                    netfeat.append(network['features'][i])
+            network['features'] = netfeat
             # create response
             response = make_response(network)
         else:

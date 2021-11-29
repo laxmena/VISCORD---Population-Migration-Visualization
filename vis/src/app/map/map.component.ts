@@ -31,7 +31,8 @@ export class MapComponent implements AfterViewInit {
   coordinates: any;
   mousePosition: number[] = [0, 0];
   date = "2020-08-01";
-  count = 100;
+  mincount = 0;
+  top = 200;
   values: any = { 'Winter': 0, 'Summer': 0, 'Fall/Spring': 0 };
   @Output() onValues = new EventEmitter<string>();
 
@@ -63,7 +64,7 @@ export class MapComponent implements AfterViewInit {
   // Create Street Network Layer
   streetNetwork = new VectorLayer({
     source: new VectorSource({
-      url: environment.filesurl + 'network?date=' + this.date + '&count=' + this.count,
+      url: environment.filesurl + 'network?date=' + this.date + '&top=' + this.top + '&mincount=' + this.mincount,
       format: new GeoJSON(),
     }),
 
@@ -105,8 +106,10 @@ export class MapComponent implements AfterViewInit {
 
   submit() {
     this.date = (<HTMLInputElement>document.getElementById("date")).value;
-    let count = (<HTMLInputElement>document.getElementById("count")).value;
-    this.count = Number(count);
+    let top = (<HTMLInputElement>document.getElementById("top")).value;
+    let mincount = (<HTMLInputElement>document.getElementById("mincount")).value;
+    this.top = Number(top);
+    this.mincount = Number(mincount);
     this.updateValues();
   }
 
@@ -207,25 +210,12 @@ export class MapComponent implements AfterViewInit {
           }))
          }
       });
-
-      // this.streetNetwork.getSource().getFeatures().map(feature => {
-      //   // get properties
-      //   // check if property 'color' exists in feature
-      //   if (feature.get('color')) {
-      //     // get color
-      //       // console.log(feature.getProperties().color)
-      //       feature.setStyle(new Style({
-      //           fill: new Fill({
-      //             color: feature.getProperties().color,
-      //           })
-      //       }))
-      //      }
-      //   });
   }
   updateValues() {
     let date = this.date;
-    let count = this.count;
-    this.dataService.getNetwork(date, count)
+    let mincount = this.mincount;
+    let top = this.top;
+    this.dataService.getNetwork(date, top, mincount)
       .subscribe(data => {
         // Update network open layers vector soruce to data
         this.streetNetwork.getSource().clear();

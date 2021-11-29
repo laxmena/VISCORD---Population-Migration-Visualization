@@ -11,13 +11,14 @@ export class DataService {
 
   constructor(private http: HttpClient) { }
 
-  getNetwork(date: string, count: number): Observable<any> {
+  getNetwork(date: string, top: number, mincount: number): Observable<any> {
     console.log('Get data')
     const headers = {'content-type': 'application/json'};
     // Query Parameters
     const params = {
       date: date,
-      count: count
+      top: top,
+      mincount: mincount
     };
     return this.http.get(this.baseURL + '/network', {headers, params});
   }
