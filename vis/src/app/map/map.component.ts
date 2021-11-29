@@ -208,19 +208,19 @@ export class MapComponent implements AfterViewInit {
          }
       });
 
-      this.streetNetwork.getSource().getFeatures().map(feature => {
-        // get properties
-        // check if property 'color' exists in feature
-        if (feature.get('color')) {
-          // get color
-            console.log(feature.getProperties().color)
-            feature.setStyle(new Style({
-                fill: new Fill({
-                  color: feature.getProperties().color
-                })
-            }))
-           }
-        });
+      // this.streetNetwork.getSource().getFeatures().map(feature => {
+      //   // get properties
+      //   // check if property 'color' exists in feature
+      //   if (feature.get('color')) {
+      //     // get color
+      //       // console.log(feature.getProperties().color)
+      //       feature.setStyle(new Style({
+      //           fill: new Fill({
+      //             color: feature.getProperties().color,
+      //           })
+      //       }))
+      //      }
+      //   });
   }
   updateValues() {
     let date = this.date;
