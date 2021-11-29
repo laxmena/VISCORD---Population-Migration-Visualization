@@ -30,6 +30,8 @@ export class MapComponent implements AfterViewInit {
   private map: Map = new Map({});
   coordinates: any;
   mousePosition: number[] = [0, 0];
+  date = "2019-01-01";
+  count = 100;
   values: any = { 'Winter': 0, 'Summer': 0, 'Fall/Spring': 0 };
   @Output() onValues = new EventEmitter<string>();
 
@@ -54,42 +56,20 @@ export class MapComponent implements AfterViewInit {
     className: "mapLayer",
     zIndex: 0,
   })
-//   chicagoMap = new VectorLayer({
-//     source: new VectorSource({
-//     format: new GeoJSON(),
-//    url: environment.filesurl + 'stations',
-// }),
-//   })
+
   boundaries = new VectorLayer({
     source: new VectorSource({
     format: new GeoJSON(),
-   url: environment.filesurl + 'boundaries',
-}),
-style: new Style({
-  stroke: new Stroke({
-    color: 'rgba(255, 0, 0, 0.5)',
-    width: 2
-  })
-}),
+    url: environment.filesurl + 'boundaries?date=' + this.date,
+  }),
   })
   // Create Street Network Layer
   streetNetwork = new VectorLayer({
     source: new VectorSource({
-      url: environment.filesurl + 'network',
+      url: environment.filesurl + 'network?date=' + this.date + '&count=' + this.count,
       format: new GeoJSON(),
     }),
-    // className: "streetNetwork",
-    // zIndex: 1,
-    // style: function (feature) {
-    //   var weight = (feature.get("chi-jun-21") / 360 + feature.get("chi-sep-22") / 540 + feature.get("chi-dec-21") / 720) / 3
-    //   const style = new Style({
-    //     stroke: new Stroke({
-    //       color: interpolateBlues(weight),
-    //       width: 3
-    //     }),
-    //   })
-    //   return style;
-    // }
+
   })
   stations = new VectorLayer({
     source:new VectorSource({
@@ -102,14 +82,6 @@ style: new Style({
     zIndex:2,
     
   })
-  // boundaries = new VectorLayer({
-  //   source:new VectorSource({
-  //     url:environment.filesurl+'boundaries',
-  //     format:new GeoJSON(),
-  //   }),
-  //   className:"boundaries",
-  //   zIndex:3,
-  // })
 
   // Create Interaction Layer
   interactionLayer = new Vector({
@@ -134,6 +106,13 @@ style: new Style({
     layers: [this.interactionLayer]
   });
 
+  submit() {
+    this.date = (<HTMLInputElement>document.getElementById("date")).value;
+    let count = (<HTMLInputElement>document.getElementById("count")).value;
+    this.count = Number(count);
+    this.updateValues();
+  }
+
   addInteractions(source: any) {
     let draw: Draw;
     let select: Select = this.select;
@@ -144,7 +123,6 @@ style: new Style({
     let map = this.map;
     this.selectedFeatures = select.getFeatures()
     let selectedFeatures = this.selectedFeatures;
-    let updateValues = this.updateValues;
     let app =this
 
     draw = new Draw({
@@ -216,18 +194,46 @@ style: new Style({
       target: 'map'
     })
 
-    this.addInteractions(this.interactionSource)
+    // this.addInteractions(this.interactionSource)
   }
 
   updateValues() {
-    let data = this.selectedFeatures;
-    console.log(data)
+    let date = this.date;
+    let count = this.count;
+    console.log(date, count);
     console.log("Update values");
-    this.dataService.getDistribution(data)
+    this.dataService.getNetwork(date, count)
       .subscribe(data => {
         console.log(data);
-        this.onValues.emit(data);
+        // Update network open layers vector soruce to data
+        console.log(this.streetNetwork.getSource());
+        this.streetNetwork.getSource().clear();
+        
+        // Change features to features from data
+        let features = new GeoJSON().readFeatures(data, {
+          dataProjection: 'EPSG:4326',
+          featureProjection: 'EPSG:3857'
+        });
+        this.streetNetwork.getSource().addFeatures(features);
+        // this.onValues.emit(data);
       });
+
+      this.dataService.getBoundaries(date)
+      .subscribe(data => {
+        console.log(data);
+        // Update getBoundaries open layers vector soruce to data
+        console.log(this.boundaries.getSource());
+        this.boundaries.getSource().clear();
+        
+        // Change features to features from data
+        let features = new GeoJSON().readFeatures(data, {
+          dataProjection: 'EPSG:4326',
+          featureProjection: 'EPSG:3857'
+        });
+        
+        this.boundaries.getSource().addFeatures(features);
+      });
+
   }
 
 }

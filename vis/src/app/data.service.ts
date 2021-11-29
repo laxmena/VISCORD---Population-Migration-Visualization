@@ -11,10 +11,24 @@ export class DataService {
 
   constructor(private http: HttpClient) { }
 
-  getDistribution(arr: any []): Observable<any> {
-    console.log('post data')
+  getNetwork(date: string, count: number): Observable<any> {
+    console.log('Get data')
     const headers = {'content-type': 'application/json'};
-    const body = JSON.stringify(arr);
-    return this.http.post(this.baseURL + 'distribution', body, {'headers': headers})
+    // Query Parameters
+    const params = {
+      date: date,
+      count: count
+    };
+    return this.http.get(this.baseURL + '/network', {headers, params});
   }
+  getBoundaries(date: string): Observable<any> {
+    console.log('Get data')
+    const headers = {'content-type': 'application/json'};
+    // Query Parameters
+    const params = {
+      date: date
+    };
+    return this.http.get(this.baseURL + '/boundaries', {headers, params});
+  }
+
 }

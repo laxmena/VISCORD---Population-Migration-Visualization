@@ -41,9 +41,12 @@ def get_boundaries():
         return make_response('Invalid date format', 400)
     try:
         week_start = dt - timedelta(days=dt.weekday()+1)
+        print("Week Start: ==> ", week_start)
         boundary_file = 'geojson/covid/{}.geojson'.format(week_start.strftime('%Y-%m-%d'))
         # Check if file exists
+        print(boundary_file)
         if not os.path.exists(boundary_file):
+            print('File not found')
             boundary_file = 'geojson/chicago-zip.geojson'
     except Exception as e:
         print(e)
@@ -51,6 +54,7 @@ def get_boundaries():
 
     boundary = gpd.read_file(boundary_file)
     boundary = json.loads(boundary.to_json())
+    print(len(boundary['features']))
     response = make_response(boundary)
     response.headers['Access-Control-Allow-Origin'] = '*'            
 

@@ -1,8 +1,6 @@
 <div id="map">
-    <form method="GET" action="/network">
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date">
-        <input type="number" id ="count" name="count">
-        <input type="submit" value="Submit">
-      </form>
+      <label for="date">Date:</label>
+      <input [value]="date" type="date" id="date">
+      <input [value]="count" type="number" id ="count">
+      <button (click)="submit()">Submit</button>
 </div>
