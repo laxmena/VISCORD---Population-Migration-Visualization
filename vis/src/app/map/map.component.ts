@@ -151,7 +151,7 @@ export class MapComponent implements AfterViewInit {
       }
       app.updateValues();
     });
-
+ 
     map.addInteraction(draw);
 
     translate.on('translateend', function (event: TranslateEvent) {
@@ -186,7 +186,7 @@ export class MapComponent implements AfterViewInit {
       ],
       view: new View({
         center: transform([-87.6298, 41.8781], 'EPSG:4326', 'EPSG:3857'),
-        zoom: 15
+        zoom: 12
       }),
       target: 'map'
     })
