@@ -12,7 +12,7 @@ divvy_station = None
 divvy_stations_gdf = None
 # chicago_boundaries_gdf = None
 # chicago_boundaries = None
-
+stdict = {}
 
 @app.route('/', methods=['GET'])
 def index():
@@ -89,7 +89,15 @@ def serve_network():
             for i in range(len(network['features'])):
                 commutecount = int(network['features'][i]['properties']['count'])
                 if(commutecount >= int(mincount)):
+                    # Get coordinates of the station
+                    start, end = network['features'][i]['geometry']['coordinates']
+                    # Get station name from the dictionary
+                    prop = network['features'][i]['properties']
+                    prop['start'] = stdict[start[0]][start[1]]
+                    prop['end'] = stdict[end[0]][end[1]]
+                    network['features'][i]['properties'] = prop
                     netfeat.append(network['features'][i])
+
             network['features'] = netfeat
             # create response
             response = make_response(network)
@@ -114,9 +122,19 @@ def load():
     global divvy_stations_gdf
     global divvy_station
 
-    divvy_stations_gdf = gpd.read_file('./stations.geojson')
+    divvy_stations_gdf = gpd.read_file('./geojson/stations.geojson')
     divvy_station = divvy_stations_gdf.to_json()
+    # convert it to json
+    divvy_station_json = json.loads(divvy_stations_gdf.to_json())
 
+    # for each station, get coordinates and add it to the dictionary as key and map it to the station name
+    for i in range(len(divvy_station_json['features'])):
+        properties = divvy_station_json['features'][i]['properties']
+        if divvy_station_json['features'][i]['properties']['name'] is not None:
+            coordx, coordy = divvy_station_json['features'][i]['geometry']['coordinates']
+            if coordx not in stdict:
+                stdict[coordx] = {}
+            stdict[coordx][coordy] = divvy_station_json['features'][i]['properties']['name']
 
 if __name__ == '__main__':
     load()

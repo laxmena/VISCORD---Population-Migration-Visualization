@@ -140,10 +140,8 @@ export class MapComponent implements AfterViewInit {
       map.removeInteraction(draw);
       map.addInteraction(select);
       map.addInteraction(translate);
-
       selectedFeatures.clear();
       delaySelectActivate();
-
       let polygon = event.feature.getGeometry()
       
       let features: any = streetNetworkLayer.getSource().getFeatures()
@@ -154,9 +152,7 @@ export class MapComponent implements AfterViewInit {
       }
       app.updateValues();
     });
- 
     map.addInteraction(draw);
-
     translate.on('translateend', function (event: TranslateEvent) {
       selectedFeatures.clear();
       let polygon: any = interactionLayer.getSource().getFeatures()[0].getGeometry();
@@ -219,28 +215,24 @@ export class MapComponent implements AfterViewInit {
       .subscribe(data => {
         // Update network open layers vector soruce to data
         this.streetNetwork.getSource().clear();
-        
         // Change features to features from data
         let features = new GeoJSON().readFeatures(data, {
           dataProjection: 'EPSG:4326',
           featureProjection: 'EPSG:3857'
         });
         this.streetNetwork.getSource().addFeatures(features);
-        // this.onValues.emit(data);
+        this.onValues.emit(data);
         this.fillColors();
       });
-
       this.dataService.getBoundaries(date)
       .subscribe(data => {
         // Update getBoundaries open layers vector soruce to data
-        this.boundaries.getSource().clear();
-        
+        this.boundaries.getSource().clear();        
         // Change features to features from data
         let features = new GeoJSON().readFeatures(data, {
           dataProjection: 'EPSG:4326',
           featureProjection: 'EPSG:3857'
         });
-
         this.boundaries.getSource().addFeatures(features);
         this.fillColors();
       });

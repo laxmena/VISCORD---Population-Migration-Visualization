@@ -1,6 +1,19 @@
 <div id="chart">
-    <div class="title">Pick date</div>
-    <div id="boxplot">
-       
-    </div>
+    <div class="title">Top 10 Commute</div>
+    <table id="commute-table">
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>Destination</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of top10">
+                <td>{{row.start}}</td>
+                <td>{{row.end}}</td>
+                <td>{{row.count}}</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
